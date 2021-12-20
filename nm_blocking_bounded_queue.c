@@ -222,7 +222,7 @@ size_t nm_queue_for_each(nm_queue* queue_, action_callback callback_, void* cont
 		char buf[24] = {'\0'};
 		arch_sem_t* pv;
 
-		if(value_ > (unsigned int)SEM_VALUE_MAX)
+		if(!sem_ || value_ > (unsigned int)SEM_VALUE_MAX)
 		{
 			return errno_set(EINVAL);
 		}
