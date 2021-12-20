@@ -185,18 +185,18 @@ typedef unsigned char atomic_flag_t;
     #error Environment not supported
 #endif
 
-typedef struct mutex_t mutex_t;
+typedef struct nm_mutex_t nm_mutex_t;
 
-int mutex_init(mutex_t* mtx_);
-int mutex_destroy(mutex_t* mtx_);
-void mutex_lock(mutex_t* mtx_);
-void mutex_unlock(mutex_t* mtx_);
+int nm_mutex_init(nm_mutex_t* mtx_);
+int nm_mutex_destroy(nm_mutex_t* mtx_);
+void nm_mutex_lock(nm_mutex_t* mtx_);
+void nm_mutex_unlock(nm_mutex_t* mtx_);
 
-typedef struct barrier_t barrier_t;
+typedef struct nm_barrier_t nm_barrier_t;
 
-int barrier_init(barrier_t* barrier_, int threads_count_);
-int barrier_destroy(barrier_t* barrier_);
-void barrier_wait(barrier_t* barrier_);
+int nm_barrier_init(nm_barrier_t* barrier_, unsigned int threads_count_);
+int nm_barrier_destroy(nm_barrier_t* barrier_);
+void nm_barrier_wait(nm_barrier_t* barrier_);
 
 /* --------------------------------------------- End of Sync utils ----------------------------------------------- */
 
