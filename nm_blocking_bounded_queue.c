@@ -209,8 +209,7 @@ size_t nm_queue_for_each(nm_queue* queue_, action_callback callback_, void* cont
 		Create an unnamed semaphore
 		@param sem_ The pointer of the semaphore object.
 		@param pshared_ The pshared argument indicates whether this semaphore
-			is to be shared between the threads (0 or PTHREAD_PROCESS_PRIVATE)
-			of a process, or between processes (PTHREAD_PROCESS_SHARED).
+			is to be shared between the threads or processes (threads semaphore only)
 		@param value_ The value argument specifies the initial value for
 			the semaphore.
 		@return If the function succeeds, the return value is 0.
@@ -219,9 +218,8 @@ size_t nm_queue_for_each(nm_queue* queue_, action_callback callback_, void* cont
 	*/
 	int sem_init(sem_t* sem_, int pshared_, unsigned int value_)
 	{
-		char buf[24] = {'\0'};
+		UNUSED(pshared_); /* threads semaphore only */
 		arch_sem_t* pv;
-
 		if(!sem_ || value_ > (unsigned int)SEM_VALUE_MAX)
 		{
 			return errno_set(EINVAL);
@@ -232,12 +230,7 @@ size_t nm_queue_for_each(nm_queue* queue_, action_callback callback_, void* cont
 			return errno_set(ENOMEM);
 		}
 
-		if(pshared_ != PTHREAD_PROCESS_PRIVATE)
-		{
-			sprintf(buf, "Global\\%p", (void*)pv);
-		}
-
-		if(!(pv->handle = CreateSemaphoreA(NULL, value_, SEM_VALUE_MAX, buf)))
+		if(!(pv->handle = CreateSemaphore(NULL, value_, SEM_VALUE_MAX, NULL)))
 		{
 			free(pv);
 			return errno_set(ENOSPC);
@@ -288,14 +281,12 @@ size_t nm_queue_for_each(nm_queue* queue_, action_callback callback_, void* cont
 	int sem_post(sem_t* sem_)
 	{
 		arch_sem_t* pv;
-
 		if(!sem_)
 		{
 			return errno_set(EINVAL);
 		}
 		
 		pv = (arch_sem_t*)(*sem_);
-
 		if(!pv)
 		{
 			return errno_set(EINVAL);
@@ -319,16 +310,14 @@ size_t nm_queue_for_each(nm_queue* queue_, action_callback callback_, void* cont
 	*/
 	int sem_getvalue(sem_t* sem_, int* value_ptr_)
 	{
-		arch_sem_t* pv;
 		long previous;
-
+		arch_sem_t* pv;
 		if(!sem_)
 		{
 			return errno_set(EINVAL);
 		}
 		
 		pv = (arch_sem_t*)(*sem_);
-
 		if(!pv)
 		{
 			return errno_set(EINVAL);
@@ -364,14 +353,12 @@ size_t nm_queue_for_each(nm_queue* queue_, action_callback callback_, void* cont
 	int sem_destroy(sem_t* sem_)
 	{
 		arch_sem_t* pv;
-		
 		if(!sem_)
 		{
 			return errno_set(EINVAL);
 		}
 		
 		pv = (arch_sem_t*)(*sem_);
-
 		if(!pv)
 		{
 			return errno_set(EINVAL);
@@ -478,7 +465,7 @@ void nm_barrier_wait(nm_barrier_t* barrier_)
 
 /* Underlying queue defines: */
 
-typedef nm_queue queue_type;
+typedef nm_queue queue_type; /* TODO: implement a nm_deque class (using 2 nm_vectors (Map) (back and forward growing) and nm_queue (pointed fixed sized queues)) */
 #define ENQUEUE(queue_, item_) nm_queue_enqueue(queue_, item_)
 #define DEQUEUE(queue_, item_ptr_) nm_queue_dequeue(queue_, item_ptr_)
 #define SIZE(queue_) nm_queue_capacity(queue_)
