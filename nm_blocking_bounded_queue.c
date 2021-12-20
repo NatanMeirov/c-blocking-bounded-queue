@@ -365,54 +365,54 @@ size_t nm_queue_for_each(nm_queue* queue_, action_callback callback_, void* cont
 #endif
 
 
-struct mutex_t
+struct nm_mutex_t
 {
 	sem_t lock_;
 };
 
-int mutex_init(mutex_t* mtx_)
+int nm_mutex_init(nm_mutex_t* mtx_)
 {
 	return sem_init(&mtx_->lock_, 0, 1);
 }
 
-int mutex_destroy(mutex_t* mtx_)
+int nm_mutex_destroy(nm_mutex_t* mtx_)
 {
 	return sem_destroy(&mtx_->lock_);
 }
 
-void mutex_lock(mutex_t* mtx_)
+void nm_mutex_lock(nm_mutex_t* mtx_)
 {
 	sem_wait(&mtx_->lock_);
 }
 
-void mutex_unlock(mutex_t* mtx_)
+void nm_mutex_unlock(nm_mutex_t* mtx_)
 {
 	sem_post(&mtx_->lock_);
 }
 
 
-struct barrier_t
+struct nm_barrier_t
 {
 	unsigned int max_threads_count_;
 	unsigned int waiting_threads_count_;
-	mutex_t mtx_;
+	nm_mutex_t mtx_;
 	sem_t turnstile_;
 };
 
 
-int barrier_init(barrier_t* barrier_, int threads_count_)
+int nm_barrier_init(nm_barrier_t* barrier_, unsigned int threads_count_)
 {
 	barrier_->max_threads_count_ = threads_count_;
 	barrier_->waiting_threads_count_ = 0;
 
-	if(mutex_init(&barrier_->mtx_) != 0)
+	if(nm_mutex_init(&barrier_->mtx_) != 0)
 	{
 		return -1;
 	}
 
 	if(sem_init(&barrier_->turnstile_, 0, 0) != 0)
 	{
-		mutex_destroy(&barrier_->mtx_);
+		nm_mutex_destroy(&barrier_->mtx_);
 		return -1;
 	}
 
@@ -420,16 +420,16 @@ int barrier_init(barrier_t* barrier_, int threads_count_)
 }
 
 
-int barrier_destroy(barrier_t* barrier_)
+int nm_barrier_destroy(nm_barrier_t* barrier_)
 {
-	return mutex_destroy(&barrier_->mtx_) && sem_destroy(&barrier_->turnstile_);
+	return nm_mutex_destroy(&barrier_->mtx_) && sem_destroy(&barrier_->turnstile_);
 }
 
 
-void barrier_wait(barrier_t* barrier_)
+void nm_barrier_wait(nm_barrier_t* barrier_)
 {
 	unsigned int i, max_threads;
-	mutex_lock(&barrier_->mtx_);
+	nm_mutex_lock(&barrier_->mtx_);
 
 	if(++barrier_->waiting_threads_count_ == barrier_->max_threads_count_)
 	{
@@ -440,7 +440,7 @@ void barrier_wait(barrier_t* barrier_)
 		}
 	}
 
-	mutex_unlock(&barrier_->mtx_);
+	nm_mutex_unlock(&barrier_->mtx_);
 	sem_wait(&barrier_->turnstile_);
 }
 
@@ -461,14 +461,14 @@ typedef nm_queue queue_type;
 struct nm_blocking_bounded_queue
 {
     queue_type queue_;
-    mutex_t mtx_;
+    nm_mutex_t mtx_;
     sem_t free_slots_;
     sem_t occupied_slots_;
-    barrier_t enq_waiters_barrier_;
-    barrier_t deq_waiters_barrier_;
-    atomic_value_t enq_waiters_;
-    atomic_value_t deq_waiters_;
-    atomic_flag_t is_valid_;
+    nm_barrier_t enq_waiters_barrier_;
+    nm_barrier_t deq_waiters_barrier_;
+    nm_atomic_value_t enq_waiters_;
+    nm_atomic_value_t deq_waiters_;
+    nm_atomic_flag_t is_valid_;
 };
 
 /* TODO: implement the BBQ main API function */
