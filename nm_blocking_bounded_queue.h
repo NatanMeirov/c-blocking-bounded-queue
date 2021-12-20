@@ -139,17 +139,18 @@ size_t nm_queue_for_each(nm_queue* queue_, action_callback callback_, void* cont
 /* ----------------------------------------------- Sync utils: ------------------------------------------------- */
 
 /* Atomics: */
-typedef size_t atomic_value_t;
-#define ATOMIC_VALUE_SET(atomic_val_, new_val_) (*atomic_val_) = (new_val_)
-#define ATOMIC_VALUE_SET_IF(atomic_val_, cond_val_, new_val_) if((*atomic_val_) == (cond_val_)) { (*atomic_val_) = (new_val_); }
-#define ATOMIC_VALUE_ADD(atomic_val_, val_to_add_) (*atomic_val_) += (val_to_add)
-#define ATOMIC_VALUE_SUB(atomic_val_, val_to_add_) (*atomic_val_) -= (val_to_add)
-typedef unsigned char atomic_flag_t;
-#define ATOMIC_FLAG_SET(atomic_flag_, new_val_) (*atomic_flag_) = (new_val_)
-#define ATOMIC_FLAG_SET_IF(atomic_flag_, cond_val_, new_val_) if((*atomic_flag_) == (cond_val_)) { (*atomic_flag_) = (new_val_); }
-#define ATOMIC_FLAG_LOAD(atomic_flag_) (*atomic_flag_)
+typedef size_t nm_atomic_value_t;
+#define NM_ATOMIC_VALUE_SET(atomic_val_, new_val_) (*atomic_val_) = (new_val_)
+#define NM_ATOMIC_VALUE_SET_IF(atomic_val_, cond_val_, new_val_) if((*atomic_val_) == (cond_val_)) { (*atomic_val_) = (new_val_); }
+#define NM_ATOMIC_VALUE_ADD(atomic_val_, val_to_add_) (*atomic_val_) += (val_to_add)
+#define NM_ATOMIC_VALUE_SUB(atomic_val_, val_to_add_) (*atomic_val_) -= (val_to_add)
+typedef unsigned char nm_atomic_flag_t;
+#define NM_ATOMIC_FLAG_SET(atomic_flag_, new_val_) (*atomic_flag_) = (new_val_)
+#define NM_ATOMIC_FLAG_SET_IF(atomic_flag_, cond_val_, new_val_) if((*atomic_flag_) == (cond_val_)) { (*atomic_flag_) = (new_val_); }
+#define NM_ATOMIC_FLAG_LOAD(atomic_flag_) (*atomic_flag_)
 
 #if defined(_WIN32) || defined(_WIN64) || (defined(__CYGWIN__) && !defined(_WIN32))
+	/* Implementation of POSIX sem_t wrapper for Windows OS Semaphore */
     #include <winsock.h>
 
     #ifndef PTHREAD_PROCESS_SHARED
