@@ -17,6 +17,9 @@
 #include <stddef.h> /* size_t, NULL */
 
 
+/* Defines: */
+#define UNUSED(x) (void)(x)
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -138,6 +141,7 @@ size_t nm_queue_for_each(nm_queue* queue_, action_callback callback_, void* cont
 
 /* ----------------------------------------------- Sync utils: ------------------------------------------------- */
 
+/* TODO: define the Atomic functionallity (meet the required OS only - Win and Linux), but use the code from below in {#else} case */
 /* Atomics: */
 typedef size_t nm_atomic_value_t;
 #define NM_ATOMIC_VALUE_SET(atomic_val_, new_val_) (*atomic_val_) = (new_val_)
@@ -150,15 +154,10 @@ typedef unsigned char nm_atomic_flag_t;
 #define NM_ATOMIC_FLAG_LOAD(atomic_flag_) (*atomic_flag_)
 
 #if defined(_WIN32) || defined(_WIN64) || (defined(__CYGWIN__) && !defined(_WIN32))
-	/* Implementation of POSIX sem_t wrapper for Windows OS Semaphore */
-    #include <winsock.h>
+	/* Implementation of POSIX sem_t wrapper for Windows OS Semaphore (required functionallity only) */
+    #include <winsock2.h>
 
-    #ifndef PTHREAD_PROCESS_SHARED
-    #define PTHREAD_PROCESS_PRIVATE	0
-    #define PTHREAD_PROCESS_SHARED	1
-    #endif
-
-    /* Support POSIX.1b semaphores.  */
+    /* POSIX.1b semaphores are supported  */
     #ifndef _POSIX_SEMAPHORES
     #define _POSIX_SEMAPHORES 200809L
     #endif
@@ -178,7 +177,7 @@ typedef unsigned char nm_atomic_flag_t;
     int sem_init(sem_t* sem_, int pshared_, unsigned int value_);
     int sem_wait(sem_t* sem_);
     int sem_post(sem_t* sem_);
-    int sem_getvalue(sem_t* sem_, int* value_);
+    int sem_getvalue(sem_t* sem_, int* value_ptr_);
     int sem_destroy(sem_t* sem_);
 #elif defined(__linux__)
 	#include <semaphore.h>
