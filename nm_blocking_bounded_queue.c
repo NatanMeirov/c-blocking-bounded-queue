@@ -256,7 +256,14 @@ size_t nm_queue_for_each(nm_queue* queue_, action_callback callback_, void* cont
 	*/
 	int sem_wait(sem_t* sem_)
 	{
-		arch_sem_t* pv = (arch_sem_t*)sem_;
+		arch_sem_t* pv;
+
+		if(!sem_)
+		{
+			return errno_set(EINVAL);
+		}
+		
+		pv = (arch_sem_t*)(*sem_);
 
 		if(!pv)
 		{
@@ -280,7 +287,14 @@ size_t nm_queue_for_each(nm_queue* queue_, action_callback callback_, void* cont
 	*/
 	int sem_post(sem_t* sem_)
 	{
-		arch_sem_t* pv = (arch_sem_t*)sem_;
+		arch_sem_t* pv;
+
+		if(!sem_)
+		{
+			return errno_set(EINVAL);
+		}
+		
+		pv = (arch_sem_t*)(*sem_);
 
 		if(!pv)
 		{
@@ -305,8 +319,15 @@ size_t nm_queue_for_each(nm_queue* queue_, action_callback callback_, void* cont
 	*/
 	int sem_getvalue(sem_t* sem_, int* value_ptr_)
 	{
+		arch_sem_t* pv;
 		long previous;
-		arch_sem_t* pv = (arch_sem_t*)sem_;
+
+		if(!sem_)
+		{
+			return errno_set(EINVAL);
+		}
+		
+		pv = (arch_sem_t*)(*sem_);
 
 		if(!pv)
 		{
@@ -342,7 +363,14 @@ size_t nm_queue_for_each(nm_queue* queue_, action_callback callback_, void* cont
 	*/
 	int sem_destroy(sem_t* sem_)
 	{
-		arch_sem_t* pv = (arch_sem_t*)sem_;
+		arch_sem_t* pv;
+		
+		if(!sem_)
+		{
+			return errno_set(EINVAL);
+		}
+		
+		pv = (arch_sem_t*)(*sem_);
 
 		if(!pv)
 		{
